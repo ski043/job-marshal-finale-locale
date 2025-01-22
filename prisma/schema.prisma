@@ -18,8 +18,14 @@ model User {
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  onboardingCompleted Boolean @default(false)
+
+  userType UserType?
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Company   Company?
+  JobSeeker JobSeeker?
 }
 
 model Account {
@@ -75,4 +81,37 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+enum UserType {
+  COMPANY
+  JOB_SEEKER
+}
+
+model Company {
+  id String @id @default(uuid())
+
+  name     String
+  location String
+  logo     String
+  website  String
+  xAccount String?
+  about    String
+  user     User    @relation(fields: [userId], references: [id])
+  userId   String  @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model JobSeeker {
+  id     String @id @default(uuid())
+  name   String
+  about  String
+  resume String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
