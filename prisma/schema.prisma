@@ -22,6 +22,8 @@ model User {
 
   userType UserType?
 
+  stripeCustomerId String? @unique
+
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   Company   Company?
@@ -100,8 +102,9 @@ model Company {
   user     User    @relation(fields: [userId], references: [id])
   userId   String  @unique
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  JobPost   JobPost[]
 }
 
 model JobSeeker {
@@ -114,4 +117,32 @@ model JobSeeker {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model JobPost {
+  id String @id @default(uuid())
+
+  jobTitle        String
+  employmentType  String
+  location        String
+  salaryFrom      Int
+  salaryTo        Int
+  jobDescription  String
+  listingDuration Int
+  benefits        String[]
+
+  status       JobPostStatus @default(DRAFT)
+  applications Int           @default(0)
+
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum JobPostStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
 }

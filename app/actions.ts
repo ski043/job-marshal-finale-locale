@@ -2,9 +2,10 @@
 
 import { z } from "zod";
 import { requireUser } from "./utils/hooks";
-import { companySchema, jobSeekerSchema } from "./utils/zodSchemas";
+import { companySchema, jobSchema, jobSeekerSchema } from "./utils/zodSchemas";
 import { prisma } from "./utils/db";
 import { redirect } from "next/navigation";
+import { stripe } from "./utils/stripe";
 
 export async function createCompany(data: z.infer<typeof companySchema>) {
   const user = await requireUser();
@@ -53,4 +54,76 @@ export async function createJobSeeker(data: z.infer<typeof jobSeekerSchema>) {
   });
 
   return redirect("/");
+}
+
+export async function createJob(data: z.infer<typeof jobSchema>) {
+  const user = await requireUser();
+
+  const validatedData = jobSchema.parse(data);
+
+  const company = await prisma.company.findUnique({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      user: {
+        select: {
+          stripeCustomerId: true,
+        },
+      },
+    },
+  });
+
+  if (!company?.id) {
+    return redirect("/");
+  }
+
+  let stripeCustomerId = company.user.stripeCustomerId;
+
+  if (!stripeCustomerId) {
+    const customer = await stripe.customers.create({
+      email: user.email!,
+      name: user.name || undefined,
+    });
+
+    stripeCustomerId = customer.id;
+
+    // Update user with Stripe customer ID
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { stripeCustomerId: customer.id },
+    });
+  }
+
+  const jobPost = await prisma.jobPost.create({
+    data: {
+      ...validatedData,
+      companyId: company.id,
+    },
+  });
+
+  const session = await stripe.checkout.sessions.create({
+    customer: stripeCustomerId,
+    line_items: [
+      {
+        price_data: {
+          product_data: {
+            name: "Job Posting",
+          },
+          currency: "USD",
+          unit_amount: 10000,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    metadata: {
+      jobId: jobPost.id,
+    },
+    success_url: `${process.env.NEXT_PUBLIC_URL}/payment/success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/payment/cancel`,
+  });
+
+  return redirect(session.url as string);
 }

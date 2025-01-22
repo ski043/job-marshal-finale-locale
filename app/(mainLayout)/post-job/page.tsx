@@ -10,6 +10,10 @@ import React from "react";
 import ArcJetLogo from "@/public/arcjet.jpg";
 import InngestLogo from "@/public/inngest-locale.png";
 import Image from "next/image";
+import { CreateJobForm } from "@/components/forms/CreateJobForm";
+import { prisma } from "@/app/utils/db";
+import { requireUser } from "@/app/utils/hooks";
+import { redirect } from "next/navigation";
 
 const companies = [
   { id: 0, name: "ArcJet", logo: ArcJetLogo },
@@ -48,10 +52,36 @@ const stats = [
   { value: "500+", label: "Companies hiring monthly" },
 ];
 
-const PostJobPage = () => {
+async function getCompany(userId: string) {
+  const data = await prisma.company.findUnique({
+    where: {
+      userId: userId,
+    },
+    select: {
+      name: true,
+      location: true,
+      about: true,
+      logo: true,
+    },
+  });
+
+  if (!data) {
+    return redirect("/");
+  }
+  return data;
+}
+
+const PostJobPage = async () => {
+  const session = await requireUser();
+  const data = await getCompany(session.id as string);
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-5">
-      {/* <CreateJobForm company={company} /> */}
+      <CreateJobForm
+        companyAbout={data.about}
+        companyLocation={data.location}
+        companyLogo={data.logo}
+        companyName={data.name}
+      />
       <div className="col-span-1   lg:col-span-2  flex flex-col gap-8"></div>
       <div className="col-span-1">
         <Card className="lg:sticky lg:top-4">
