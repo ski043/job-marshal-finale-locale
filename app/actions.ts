@@ -6,6 +6,7 @@ import { companySchema, jobSchema, jobSeekerSchema } from "./utils/zodSchemas";
 import { prisma } from "./utils/db";
 import { redirect } from "next/navigation";
 import { stripe } from "./utils/stripe";
+import { jobListingDurationPricing } from "./utils/pricingTiers";
 
 export async function createCompany(data: z.infer<typeof companySchema>) {
   const user = await requireUser();
@@ -103,16 +104,26 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
     },
   });
 
+  // Get price from pricing tiers based on duration
+  const pricingTier = jobListingDurationPricing.find(
+    (tier) => tier.days === validatedData.listingDuration
+  );
+
+  if (!pricingTier) {
+    throw new Error("Invalid listing duration selected");
+  }
+
   const session = await stripe.checkout.sessions.create({
     customer: stripeCustomerId,
     line_items: [
       {
         price_data: {
           product_data: {
-            name: "Job Posting",
+            name: `Job Posting - ${pricingTier.days} Days`,
+            description: pricingTier.description,
           },
           currency: "USD",
-          unit_amount: 10000,
+          unit_amount: pricingTier.price * 100, // Convert to cents for Stripe
         },
         quantity: 1,
       },
