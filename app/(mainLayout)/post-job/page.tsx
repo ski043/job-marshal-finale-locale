@@ -62,6 +62,8 @@ async function getCompany(userId: string) {
       location: true,
       about: true,
       logo: true,
+      xAccount: true,
+      website: true,
     },
   });
 
@@ -81,8 +83,10 @@ const PostJobPage = async () => {
         companyLocation={data.location}
         companyLogo={data.logo}
         companyName={data.name}
+        companyXAccount={data.xAccount}
+        companyWebsite={data.website}
       />
-      <div className="col-span-1   lg:col-span-2  flex flex-col gap-8"></div>
+
       <div className="col-span-1">
         <Card className="lg:sticky lg:top-4">
           <CardHeader>

@@ -42,13 +42,17 @@ interface CreateJobFormProps {
   companyLocation: string;
   companyAbout: string;
   companyLogo: string;
+  companyXAccount: string | null;
+  companyWebsite: string;
 }
 
 export function CreateJobForm({
   companyAbout,
   companyLocation,
   companyLogo,
+  companyXAccount,
   companyName,
+  companyWebsite,
 }: CreateJobFormProps) {
   const form = useForm<z.infer<typeof jobSchema>>({
     resolver: zodResolver(jobSchema),
@@ -57,8 +61,8 @@ export function CreateJobForm({
       companyDescription: companyAbout,
       companyLocation: companyLocation,
       companyName: companyName,
-      companyWebsite: "",
-      companyXAccount: "",
+      companyWebsite: companyWebsite,
+      companyXAccount: companyXAccount || "",
       employmentType: "",
       jobDescription: "",
       jobTitle: "",

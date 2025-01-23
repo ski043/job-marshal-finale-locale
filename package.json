@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@arcjet/ip": "1.0.0-beta.1",
     "@arcjet/next": "1.0.0-beta.1",
     "@auth/prisma-adapter": "^2.7.4",
     "@hookform/resolvers": "^3.10.0",

@@ -1,32 +1,38 @@
-import arcjet, { detectBot, fixedWindow, slidingWindow } from "@arcjet/next";
-import GitHub from "next-auth/providers/github";
-import { NextRequest, NextResponse } from "next/server";
-import type { NextAuthConfig } from "next-auth";
+import ip from "@arcjet/ip";
+
+import arcjet, { shield, slidingWindow, detectBot } from "@/app/utils/arcjet";
 import { handlers } from "@/app/utils/auth";
+import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export const config = {
-  providers: [GitHub],
-} satisfies NextAuthConfig;
-
-const aj = arcjet({
-  key: process.env.ARCJET_KEY!,
-  rules: [
-    fixedWindow({
+// Add rules to the base Arcjet instance outside of the handler function
+const aj = arcjet
+  .withRule(
+    // Shield detects suspicious behavior, such as SQL injection and cross-site
+    // scripting attacks.
+    shield({
+      mode: "LIVE",
+    })
+  )
+  .withRule(
+    slidingWindow({
       mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
-      window: "60s", // 60 second fixed window
-      max: 10,
-    }),
+      interval: 60, // tracks requests across a 60 second sliding window
+      max: 10, // allow a maximum of 10 requests
+    })
+  )
+  .withRule(
     detectBot({
       mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
       allow: [], // "allow none" will block all detected bots
-    }),
-  ],
-});
+    })
+  );
 
-// Protect the sensitive actions e.g. login, signup, etc with Arcjet
 const ajProtectedPOST = async (req: NextRequest) => {
-  const decision = await aj.protect(req);
-  console.log("Arcjet decision", decision);
+  // Next.js 15 doesn't provide the IP address in the request object so we use
+  // the Arcjet utility package to parse the headers and find it
+  const userIp = ip(req);
+  const decision = await aj.protect(req, { fingerprint: userIp });
 
   if (decision.isDenied()) {
     if (decision.reason.isRateLimit()) {
