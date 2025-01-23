@@ -121,6 +121,9 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
           product_data: {
             name: `Job Posting - ${pricingTier.days} Days`,
             description: pricingTier.description,
+            images: [
+              "https://pve1u6tfz1.ufs.sh/f/Ae8VfpRqE7c0gFltIEOxhiBIFftvV4DTM8a13LU5EyzGb2SQ",
+            ],
           },
           currency: "USD",
           unit_amount: pricingTier.price * 100, // Convert to cents for Stripe
