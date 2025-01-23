@@ -24,10 +24,11 @@ model User {
 
   stripeCustomerId String? @unique
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Company   Company?
-  JobSeeker JobSeeker?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Company      Company?
+  JobSeeker    JobSeeker?
+  SavedJobPost SavedJobPost[]
 }
 
 model Account {
@@ -137,12 +138,27 @@ model JobPost {
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  SavedJobPost SavedJobPost[]
 }
 
 enum JobPostStatus {
   DRAFT
   ACTIVE
   EXPIRED
+}
+
+model SavedJobPost {
+  id     String @id @default(uuid())
+  jobId  String
+  userId String
+
+  job  JobPost @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, jobId])
 }
