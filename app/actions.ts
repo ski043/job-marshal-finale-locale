@@ -10,6 +10,7 @@ import { jobListingDurationPricing } from "./utils/pricingTiers";
 import { revalidatePath } from "next/cache";
 import arcjet, { detectBot, shield } from "./utils/arcjet";
 import { request } from "@arcjet/next";
+import { inngest } from "./utils/inngest/client";
 
 const aj = arcjet
   .withRule(
@@ -142,6 +143,15 @@ export async function createJob(data: z.infer<typeof jobSchema>) {
       salaryTo: validatedData.salaryTo,
       listingDuration: validatedData.listingDuration,
       benefits: validatedData.benefits,
+    },
+  });
+
+  // Trigger the job expiration function
+  await inngest.send({
+    name: "job/created",
+    data: {
+      jobId: jobPost.id,
+      expirationDays: validatedData.listingDuration,
     },
   });
 
