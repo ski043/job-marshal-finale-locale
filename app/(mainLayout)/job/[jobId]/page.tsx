@@ -19,6 +19,15 @@ import {
 import { getFlagEmoji } from "@/app/utils/countriesList";
 import { JsonToHtml } from "@/components/general/JsonToHtml";
 import { saveJobPost, unsaveJobPost } from "@/app/actions";
+import arcjet, { detectBot } from "@/app/utils/arcjet";
+import { request } from "@arcjet/next";
+
+const aj = arcjet.withRule(
+  detectBot({
+    mode: "LIVE",
+    allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:PREVIEW"],
+  })
+);
 
 async function getJob(jobId: string, userId?: string) {
   const [jobData, savedJob] = await Promise.all([
@@ -77,6 +86,14 @@ type Params = Promise<{ jobId: string }>;
 
 const JobIdPage = async ({ params }: { params: Params }) => {
   const { jobId } = await params;
+  const req = await request();
+
+  const decision = await aj.protect(req);
+
+  if (decision.isDenied()) {
+    throw new Error("forbidden");
+  }
+
   const session = await auth();
   const { jobData, savedJob } = await getJob(jobId, session?.user?.id);
   const locationFlag = getFlagEmoji(jobData.location);
@@ -143,7 +160,7 @@ const JobIdPage = async ({ params }: { params: Params }) => {
                 return (
                   <Badge
                     key={benefit.id}
-                    variant={isOffered ? "default" : "destructive"}
+                    variant={isOffered ? "default" : "outline"}
                     className={`text-sm px-4 py-1.5 rounded-full ${
                       !isOffered && " opacity-75 cursor-not-allowed"
                     }`}
@@ -245,7 +262,7 @@ const JobIdPage = async ({ params }: { params: Params }) => {
                 />
                 <div>
                   <h3 className="font-semibold">{jobData.company.name}</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground line-clamp-3">
                     {jobData.company.about}
                   </p>
                 </div>
