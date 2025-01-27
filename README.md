@@ -3,7 +3,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Getting Started
 Clone the repo locally:
 ```bash
-git clone https://github.com/ski043/job-marshal-finale-locale.git --depth 1 && cd job-marshal-finale-locale
+git clone https://github.com/wathika-eng/job-marshal-finale-locale.git --depth 1 && cd job-marshal-finale-locale
 ```
 
 Create your .env file:
