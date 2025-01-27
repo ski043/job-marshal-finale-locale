@@ -8,7 +8,7 @@ git clone https://github.com/ski043/job-marshal-finale-locale.git --depth 1 && c
 
 Create your .env file:
 ```bash
-cp .env.example .env
+cp env.txt .env
 ```
 setup your database and other environmental variables
 
