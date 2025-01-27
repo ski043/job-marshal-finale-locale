@@ -1,6 +1,25 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
+Clone the repo locally:
+```bash
+git clone https://github.com/wathika-eng/job-marshal-finale-locale.git --depth 1 && cd job-marshal-finale-locale
+```
+
+Create your .env file:
+```bash
+cp env.txt .env
+```
+setup your database and other environmental variables
+
+Install dependecies:
+```bash
+npm i
+```
+Then migrate your database:
+```bash
+npx prisma migrate dev
+```
 
 First, run the development server:
 
@@ -13,8 +32,18 @@ pnpm dev
 # or
 bun dev
 ```
+And on a diffrent tab:
+```bash
+npx inngest-cli@latest dev
+```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+Screenshots:
+
+[job_posting_page](images/image.png)
+
+[dashboard](images/image%20copy.png)
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
