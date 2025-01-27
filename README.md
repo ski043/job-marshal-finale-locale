@@ -1,6 +1,25 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
+Clone the repo locally:
+```bash
+git clone https://github.com/ski043/job-marshal-finale-locale.git --depth 1 && cd job-marshal-finale-locale
+```
+
+Create your .env file:
+```bash
+cp .env.example .env
+```
+setup your database and other environmental variables
+
+Install dependecies:
+```bash
+npm i
+```
+Then migrate your database:
+```bash
+npx prisma migrate dev
+```
 
 First, run the development server:
 
