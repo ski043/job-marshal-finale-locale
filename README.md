@@ -32,8 +32,18 @@ pnpm dev
 # or
 bun dev
 ```
+And on a diffrent tab:
+```bash
+npx inngest-cli@latest dev
+```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+Screenshots:
+
+[job_posting_page](images/image.png)
+
+[dashboard](images/image%20copy.png)
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
